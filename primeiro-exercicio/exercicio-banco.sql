@@ -1,0 +1,34 @@
+-- 1.
+SELECT 
+  Clientes.CLI_NOME,
+  SUM(Parcelas.PARC_VALOR) AS TOTAL
+FROM MAT_CLIENTES Clientes
+INNER JOIN MAT_VENDAS Vendas ON Vendas.CLI_COD = Clientes.CLI_COD
+INNER JOIN MAT_PARCELA_RECEBER Parcelas ON Parcelas.VEN_COD = Vendas.VEN_COD
+WHERE Parcelas.PARC_DTVENCTO BETWEEN CURRENT_DATE AND CURRENT_DATE + 60
+GROUP BY Clientes.CLI_NOME
+
+-- Visualizar parcelas a receber de todos os clientes do São Paulo
+SELECT * FROM MAT_PARCELA_RECEBER Parcelas
+WHERE Parcelas.VEN_COD IN (
+  SELECT 
+    Vendas.VEN_COD 
+  FROM MAT_VENDAS Vendas
+  INNER JOIN MAT_CLIENTES Clientes ON Clientes.CLI_COD = Vendas.CLI_COD
+  INNER JOIN MAT_CIDADES Cidades ON Cidades.CID_COD = Clientes.CID_COD_RESID
+  WHERE Cidades.EST_UF = 'SP'
+)
+
+-- 2.
+UPDATE MAT_PARCELA_RECEBER Parcelas 
+SET Parcelas.PARC_DTVENCTO = Parcelas.PARC_DTVENCTO - 40
+WHERE Parcelas.VEN_COD IN (
+  SELECT 
+    Vendas.VEN_COD 
+  FROM MAT_VENDAS Vendas
+  INNER JOIN MAT_CLIENTES Clientes ON Clientes.CLI_COD = Vendas.CLI_COD
+  INNER JOIN MAT_CIDADES Cidades ON Cidades.CID_COD = Clientes.CID_COD_RESID
+  WHERE Cidades.EST_UF = 'SP'
+)
+
+-- 3
